@@ -2,10 +2,8 @@ import cv2
 
 class CameraCapture():
 
-    videoCapture = cv2.VideoCapture(1) # webcam
-
-    def __init__(self):
-        self.image    = self.cap()
+    def __init__(self, camID):
+        self.videoCapture = cv2.VideoCapture(camID) # webcam
 
     def cap(self):
         _, img = self.videoCapture.read()

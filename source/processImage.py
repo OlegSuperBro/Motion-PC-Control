@@ -12,6 +12,9 @@ mpHand  = mpHands.Hands(static_image_mode        = False, # It's video stream, y
                         min_detection_confidence = .7,
                         min_tracking_confidence  = .5)
 
+def resizeImage(image: np.ndarray):
+    pass
+
 def changeColorChannel(image: np.ndarray):
     return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -30,6 +33,11 @@ def fullProcess(image: np.ndarray, _alpha: int = 1, _beta: int = 0):
         )
     )
 
+def drawLandmarks(image: np.ndarray, result):
+    if result.multi_hand_landmarks:
+        for handLandmark in result.multi_hand_landmarks:
+            mpDraw.draw_landmarks(image, handLandmark, mpHands.HAND_CONNECTIONS)
+
 def handDots(result, image_width, image_height):
     dotList = []
 
@@ -42,13 +50,14 @@ def handDots(result, image_width, image_height):
     
     return None 
 
-def drawLandmarks(image: np.ndarray, result):
-    if result.multi_hand_landmarks:
-        for handLandmark in result.multi_hand_landmarks:
-            mpDraw.draw_landmarks(image, handLandmark, mpHands.HAND_CONNECTIONS)
-
 def distBeetwenDots(dots: list, dot1: int, dot2: int):
-        if dots:
-            return hypot(dots[dot1][1]-dots[dot2][1], dots[dot1][2] - dots[dot2][2])
-        else:
-            return None
+    if dots:
+        return hypot(dots[dot1][1]-dots[dot2][1], dots[dot1][2] - dots[dot2][2])
+    else:
+        return None
+
+def calcSU(dist: int, SU: float = 1):
+    if dist and SU:
+        return dist / SU
+    else:
+        return None
