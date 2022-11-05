@@ -28,16 +28,12 @@ img_result = dummy()
 img_result.multi_hand_landmarks = None
 
 print("Please, show your hands on comfort distance from camera")
-while not img_result.multi_hand_landmarks:
+while True:
     img = camera.cap()
     img_result = processImage.fullProcess(img)
-
-    cv2.imshow("Image", img)
-    cv2.waitKey(1)
-
-cv2.destroyAllWindows()
-
-SU = processImage.distBeetwenDots(
+    
+    if img_result:
+        SU = processImage.distBeetwenDots(
         processImage.handDots(
             img_result,
             CAMERA_SIZE[0],
@@ -45,13 +41,19 @@ SU = processImage.distBeetwenDots(
             ),
         SU_POINTS[0],
         SU_POINTS[1]
-        
         )
 
-print(SU)
+        processImage.drawLandmarks(img, img_result)
+
+        cv2.putText(img, str(SU), (10,70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+
+    cv2.imshow("Image", img)
+    if (cv2.waitKey(1) and 0xff == ord('q')) and SU:
+        break
+
+cv2.destroyAllWindows()
 
 pTime = 0
-
 while True:
 
     time_elapsed = time.time() - pTime
@@ -63,11 +65,15 @@ while True:
         img_result = processImage.fullProcess(img)
 
         if img_result:
+            dots = processImage.handDots(
+                img_result,
+                CAMERA_SIZE[0],
+                CAMERA_SIZE[1]
+                ),
             processImage.drawLandmarks(img, img_result)
             dist = processImage.distBeetwenDots(processImage.handDots(img_result, CAMERA_SIZE[0], CAMERA_SIZE[1]), 8, 5)
-            print("NO SU = ", dist)
-            print("SU    =", processImage.calcSU(dist, SU))
-
+            cv2.putText(img, str(dist), (10, 110), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+            cv2.putText(img, str(processImage.calcSU(dist, SU)), (10, 150), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
 
         cTime = time.time()
         fps = 1 / (cTime - pTime)
