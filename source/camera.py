@@ -4,18 +4,15 @@ from captured_image import CapturedImage
 
 class CameraCapture():
 
-    videoCapture = cv2.VideoCapture(1) # video capture
-    currentFPS   = 0 
+    videoCapture = cv2.VideoCapture(1) # webcam
 
-    def __init__(self, maxfps: int = 60, showfps: bool = True):
-        self.maxFPS   = maxfps
-        self.showFPS  = showfps
+    def __init__(self):
         self.image    = self.cap()
 
     def cap(self):
         _, img = self.videoCapture.read()
         img = cv2.flip(img, 1)
-        img.flags.writeable = False
+        img.flags.writeable = False # google says this will optimize a little bit
         return CapturedImage(img)
     
     def getResolution(self):

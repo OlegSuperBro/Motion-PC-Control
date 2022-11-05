@@ -8,7 +8,7 @@ MAX_FPS = 1000
 
 
 
-camera = CameraCapture(maxfps = MAX_FPS)
+camera = CameraCapture()
 
 pTime = 0
 
