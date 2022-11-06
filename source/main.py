@@ -13,7 +13,7 @@ MAX_FPS     = 1000
 RESIZE_MULT = 1    # multiply image size by this var
 BRIGHTNESS  = 1    # image brightness
 
-SU_POINTS = (0, 5)
+SU_POINTS = (9, 13)
 # you can get all points here:
 # https://google.github.io/mediapipe/solutions/hands.html
 
@@ -24,34 +24,18 @@ CAMERA_SIZE = (
             camera.videoCapture.get(cv2.CAP_PROP_FRAME_HEIGHT)
             )
 
-img_result = dummy()
-img_result.multi_hand_landmarks = None
+gestures = \
+    {
+        0:[
 
-print("Please, show your hands on comfort distance from camera")
-while True:
-    img = camera.cap()
-    img_result = processImage.fullProcess(img)
-    
-    if img_result:
-        SU = processImage.distBeetwenDots(
-        processImage.handDots(
-            img_result,
-            CAMERA_SIZE[0],
-            CAMERA_SIZE[1]
-            ),
-        SU_POINTS[0],
-        SU_POINTS[1]
-        )
+        ],
+        1:[
 
-        processImage.drawLandmarks(img, img_result)
+        ],
+        2:[
 
-        cv2.putText(img, str(SU), (10,70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
-
-    cv2.imshow("Image", img)
-    if (cv2.waitKey(1) and 0xff == ord('q')) and SU:
-        break
-
-cv2.destroyAllWindows()
+        ]
+    }
 
 pTime = 0
 while True:
@@ -69,7 +53,14 @@ while True:
                 img_result,
                 CAMERA_SIZE[0],
                 CAMERA_SIZE[1]
-                ),
+                )
+            
+            SU = processImage.distBeetwenDots(
+                 dots,
+                 SU_POINTS[0],
+                 SU_POINTS[1]
+            )
+
             processImage.drawLandmarks(img, img_result)
             dist = processImage.distBeetwenDots(processImage.handDots(img_result, CAMERA_SIZE[0], CAMERA_SIZE[1]), 8, 5)
             cv2.putText(img, str(dist), (10, 110), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
