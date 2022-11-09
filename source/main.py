@@ -1,40 +1,44 @@
 import time
 import cv2
 
-from dummy import dummy
 from camera import CameraCapture
+from controller import *
+import parser
 import processImage
+import calculations
 
 # --------SETTINGS-------- #
 SHOW_CAM    = True # show cam
 SHOW_FPS    = True # show fps (only if SHOW_CAM is true)
 MAX_FPS     = 1000
 
+RESTART_GESTURES_ON_SUCCESS = True #
+
 RESIZE_MULT = 1    # multiply image size by this var
 BRIGHTNESS  = 1    # image brightness
 
-SU_POINTS = (9, 13)
+SU_DOTS = (9, 13)
 # you can get all points here:
 # https://google.github.io/mediapipe/solutions/hands.html
 
 camera = CameraCapture(1)
 
-CAMERA_SIZE = (
-            camera.videoCapture.get(cv2.CAP_PROP_FRAME_WIDTH),
-            camera.videoCapture.get(cv2.CAP_PROP_FRAME_HEIGHT)
-            )
+
+
+# ------GESTURES FORMATING------ #
+
+# First index is priority
+
+# ("statement", func, args)
 
 gestures = \
     {
         0:[
-
+            ("calcDistBySU(dots, 8, 12, SU) < 1.3", mouse_move, () )
         ],
         1:[
 
         ],
-        2:[
-
-        ]
     }
 
 pTime = 0
@@ -49,22 +53,21 @@ while True:
         img_result = processImage.fullProcess(img)
 
         if img_result:
-            dots = processImage.handDots(
+            parser.dots = processImage.handDots(
                 img_result,
                 CAMERA_SIZE[0],
                 CAMERA_SIZE[1]
                 )
             
-            SU = processImage.distBeetwenDots(
-                 dots,
-                 SU_POINTS[0],
-                 SU_POINTS[1]
+            parser.SU = calculations.distBeetwenDots(
+                 parser.dots,
+                 SU_DOTS[0],
+                 SU_DOTS[1]
             )
 
             processImage.drawLandmarks(img, img_result)
-            dist = processImage.distBeetwenDots(processImage.handDots(img_result, CAMERA_SIZE[0], CAMERA_SIZE[1]), 8, 5)
-            cv2.putText(img, str(dist), (10, 110), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
-            cv2.putText(img, str(processImage.calcSU(dist, SU)), (10, 150), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+
+            parser.parse(gestures, parser.dots, parser.SU)
 
         cTime = time.time()
         fps = 1 / (cTime - pTime)
