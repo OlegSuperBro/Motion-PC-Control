@@ -1,12 +1,14 @@
-import pyautogui as pygui
+from pyautogui import size
 import mouse
+import cv2
 
 from calculations import *
 from camera import CameraCapture
+from settings import *
 
-camera = CameraCapture(1)
+camera = CameraCapture(CAMERA_ID)
 
-SCREEN_WIDTH, SCREEN_HEIGHT  = pygui.size()
+SCREEN_WIDTH, SCREEN_HEIGHT = size()
 
 CAMERA_SIZE = camera.getResolution()
 

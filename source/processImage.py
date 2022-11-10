@@ -1,7 +1,6 @@
 import mediapipe as mp
-import cv2
-
 import numpy as np
+import cv2
 
 mpHands = mp.solutions.hands
 mpDraw  = mp.solutions.drawing_utils
@@ -48,3 +47,12 @@ def handDots(result, image_width, image_height):
         return dotList
     
     return None
+
+def drawLineBetweenDots(img:np.ndarray, dots: list, dot1: int, dot2: int):
+    if dots:
+        x1, y1 = dots[dot1][1], dots[dot1][2]
+        x2, y2 = dots[dot2][1], dots[dot2][2]
+        
+        cv2.circle(img, (x1, y1), 4, (255, 0, 0), cv2.FILLED)
+        cv2.circle(img, (x2, y2), 4, (255, 0, 0), cv2.FILLED)
+        cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 3)
