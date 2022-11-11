@@ -1,42 +1,38 @@
-import mediapipe as mp
 import numpy as np
 import cv2
 
-mpHands = mp.solutions.hands
-mpDraw  = mp.solutions.drawing_utils
-mpHand  = mpHands.Hands(static_image_mode        = False, # It's video stream, you dumbass
-                        max_num_hands            = 2,     
-                        min_detection_confidence = .7,
-                        min_tracking_confidence  = .5)
+from settings import settings
 
-def resizeImage(image: np.ndarray):
+
+
+def resize_image(image: np.ndarray) -> np.ndarray:
     return
     #cv2.resize(image)
 
-def changeColorChannel(image: np.ndarray):
+def change_color_channel(image: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-def changeBrightness(image: np.ndarray, _alpha: int = 1, _beta: int = 0):
+def change_brightness(image: np.ndarray, _alpha: int = 1, _beta: int = 0) -> np.ndarray:
     return cv2.convertScaleAbs(image, alpha = _alpha, beta = _beta) 
 
-def processImage(image: np.ndarray):
-    return mpHand.process(image)
+def process_image(image: np.ndarray) -> type:
+    return settings.mpHand.process(image)
 
-def fullProcess(image: np.ndarray, _alpha: int = 1, _beta: int = 0):
-    return processImage(
-        changeColorChannel(
-            changeBrightness(
+def full_process(image: np.ndarray, _alpha: int = 1, _beta: int = 0) -> type:
+    return process_image(
+        change_color_channel(
+            change_brightness(
                 image, _alpha, _beta
             )
         )
     )
 
-def drawLandmarks(image: np.ndarray, result):
+def draw_landmarks(image: np.ndarray, result) -> None:
     if result.multi_hand_landmarks:
         for handLandmark in result.multi_hand_landmarks:
-            mpDraw.draw_landmarks(image, handLandmark, mpHands.HAND_CONNECTIONS)
+            settings.mpDraw.draw_landmarks(image, handLandmark, settings.mpHands.HAND_CONNECTIONS)
 
-def handDots(result, image_width, image_height):
+def hand_dots(result, image_width, image_height) -> list:
 
     if result.multi_hand_landmarks:
         dotList = []
@@ -48,7 +44,7 @@ def handDots(result, image_width, image_height):
     
     return None
 
-def drawLineBetweenDots(img:np.ndarray, dots: list, dot1: int, dot2: int):
+def draw_line_between_dots(img:np.ndarray, dots: list, dot1: int, dot2: int) -> None:
     if dots:
         x1, y1 = dots[dot1][1], dots[dot1][2]
         x2, y2 = dots[dot2][1], dots[dot2][2]
