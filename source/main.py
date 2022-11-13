@@ -2,109 +2,87 @@ import os
 import time
 import cv2
 
+from settings import settings
+
 import calculations
 import processImage
 from camera import CameraCapture
 from controller import *
-from settings import *
 
-# ------GESTURES FORMATING------ #
-
-# First index is priority
-
-# ("statement", func, args)
-
-GESTURES = \
-        {
-            0:[
-                ("(calcDistBySU(dots, 8, 12, SU) < 1.3) and \
-                (calcDistBySU(dots, 8, 12, SU) < 1.3) and \
-                (calcDistBySU(dots, 8, 12, SU) < 1.3) and \
-                (calcDistBySU(dots, 8, 12, SU) < 1.3)",
-                mouse_move,
-                () )
-            ],
-            1:[
-
-            ],
-        }
-
-camera = CameraCapture(CAMERA_ID)
+camera = CameraCapture(settings.CAMERA_ID)
 
 dots = None 
-su = None
+su = None # standart unit
 
-DEBUG_DOTS = (8, 12)
-
-if DEBUG_MODE:
-    def parse(gestures: dict, dots: list, SU: float = 1):
+if settings.DEBUG_MODE:
+    def parse(gestures: dict, dots: list, SU: float = 1) -> None:
         for key in gestures.keys():
             for line in gestures.get(key):
                 try:
                     result = eval(line[0])
                 except:
                     return
-                if DEBUG_OUTPUT_IF_FALSE or result:
+                if settings.DEBUG_OUTPUT_IF_FALSE or result:
                     print(line[0].replace("                 ", "\n"), "\n", result)
                     print("")
 
 else:
-    def parse(gestures: dict, dots: list, SU: float = 1):
+    def parse(gestures: dict, dots: list, SU: float = 1) -> None:
         for key in gestures.keys():
             for line in gestures.get(key):
                 try:
                     result = eval(line[0])
-                except:
+                except Exception:
                     return
                 else:
                     if result:
                         line[1](dots, *line[2])
-                        if RESTART_GESTURES_ON_SUCCESS:
+                        if settings.RESTART_GESTURES_ON_SUCCESS:
                             return
 
 def main():
-    pTime = 0        
+    pTime = 0
 
     while True:
 
         time_elapsed = time.time() - pTime
 
-        if time_elapsed > 1./MAX_FPS:
+        if time_elapsed > 1./settings.MAX_FPS:
 
             img = camera.cap()
 
-            img_result = processImage.fullProcess(img)
+            img_result = processImage.full_process(img)
 
             if img_result:
-                dots = processImage.handDots(
+                dots = processImage.hand_dots(
                     img_result,
-                    CAMERA_SIZE[0],
-                    CAMERA_SIZE[1]
+                    settings.CAMERA_SIZE[0],
+                    settings.CAMERA_SIZE[1]
                     )
                 
-                su = calculations.distBeetwenDots(
+                su = calculations.dist_beetwen_dots(
                     dots,
-                    SU_DOTS[0],
-                    SU_DOTS[1]
+                    settings.SU_DOTS[0],
+                    settings.SU_DOTS[1]
                 )
 
-                processImage.drawLandmarks(img, img_result)
+                processImage.draw_landmarks(img, img_result)
 
                 os.system("cls")
-                parse(GESTURES, dots, su)
+                parse(settings.GESTURES, dots, su)
 
-                if DEBUG_MODE:
-                    processImage.drawLineBetweenDots(img, dots, DEBUG_DOTS[0], DEBUG_DOTS[1])
-                    cv2.putText(img, str(distBeetwenDots(dots, DEBUG_DOTS[0], DEBUG_DOTS[1])), (10, 110), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
-                    cv2.putText(img, str(calcDistBySU(dots,  DEBUG_DOTS[0], DEBUG_DOTS[1], su)), (10, 150), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
-
-            if SHOW_FPS:  
+            if settings.SHOW_FPS:  
                 cTime = time.time()
                 fps = 1 / (cTime - pTime)
                 pTime = cTime  
                 cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
             
-            if SHOW_CAM:
+            if settings.SHOW_CAM:
+                if settings.DEBUG_MODE:
+                    processImage.draw_line_between_dots(img, dots, settings.settings.DEBUG_DOTS[0], settings.DEBUG_DOTS[1])
+                    cv2.putText(img, str(dist_beetwen_dots(dots, settings.DEBUG_DOTS[0], settings.DEBUG_DOTS[1])), (10, 110), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+                    cv2.putText(img, str(calc_dist_by_su(dots,  settings.DEBUG_DOTS[0], settings.DEBUG_DOTS[1], su)), (10, 150), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+
                 cv2.imshow("Image", img)
 
             cv2.waitKey(1)
