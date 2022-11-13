@@ -3,11 +3,11 @@ import cv2
 
 from settings import settings
 
-
-
-def resize_image(image: np.ndarray) -> np.ndarray:
-    return
-    #cv2.resize(image)
+def resize_image(image: np.ndarray, size: tuple[int, int] = None, multiply: float = 1) -> np.ndarray:
+    if size:
+        return cv2.resize(image, size)
+    else:
+        return cv2.resize(image, (image.shape[0] * multiply, image.shape[1] * multiply))
 
 def change_color_channel(image: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -16,7 +16,7 @@ def change_brightness(image: np.ndarray, _alpha: int = 1, _beta: int = 0) -> np.
     return cv2.convertScaleAbs(image, alpha = _alpha, beta = _beta) 
 
 def process_image(image: np.ndarray) -> type:
-    return settings.mpHand.process(image)
+    return settings.MPHAND.process(image)
 
 def full_process(image: np.ndarray, _alpha: int = 1, _beta: int = 0) -> type:
     return process_image(

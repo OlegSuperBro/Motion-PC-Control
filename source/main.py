@@ -12,7 +12,7 @@ from controller import *
 camera = CameraCapture(settings.CAMERA_ID)
 
 dots = None 
-su = None
+su = None # standart unit
 
 if settings.DEBUG_MODE:
     def parse(gestures: dict, dots: list, SU: float = 1) -> None:
@@ -32,7 +32,7 @@ else:
             for line in gestures.get(key):
                 try:
                     result = eval(line[0])
-                except:
+                except Exception:
                     return
                 else:
                     if result:
@@ -71,11 +71,6 @@ def main():
                 os.system("cls")
                 parse(settings.GESTURES, dots, su)
 
-                if settings.DEBUG_MODE:
-                    processImage.draw_line_between_dots(img, dots, settings.settings.DEBUG_DOTS[0], settings.DEBUG_DOTS[1])
-                    cv2.putText(img, str(dist_beetwen_dots(dots, settings.DEBUG_DOTS[0], settings.DEBUG_DOTS[1])), (10, 110), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
-                    cv2.putText(img, str(calc_dist_by_su(dots,  settings.DEBUG_DOTS[0], settings.DEBUG_DOTS[1], su)), (10, 150), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
-
             if settings.SHOW_FPS:  
                 cTime = time.time()
                 fps = 1 / (cTime - pTime)
@@ -83,10 +78,14 @@ def main():
                 cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
             
             if settings.SHOW_CAM:
+                if settings.DEBUG_MODE:
+                    processImage.draw_line_between_dots(img, dots, settings.settings.DEBUG_DOTS[0], settings.DEBUG_DOTS[1])
+                    cv2.putText(img, str(dist_beetwen_dots(dots, settings.DEBUG_DOTS[0], settings.DEBUG_DOTS[1])), (10, 110), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+                    cv2.putText(img, str(calc_dist_by_su(dots,  settings.DEBUG_DOTS[0], settings.DEBUG_DOTS[1], su)), (10, 150), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+
                 cv2.imshow("Image", img)
 
             cv2.waitKey(1)
 
 if __name__ == "__main__":
-    # print(settings.GESTURES[0])
     main()

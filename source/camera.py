@@ -3,7 +3,7 @@ import numpy as np
 
 class CameraCapture:
 
-    def __init__(self, camID):
+    def __init__(self, camID) -> None:
         self.videoCapture = cv2.VideoCapture(camID) # webcam
 
     def cap(self) -> np.ndarray:

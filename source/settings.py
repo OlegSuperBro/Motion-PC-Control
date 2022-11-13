@@ -45,13 +45,14 @@ class Config(configparser.ConfigParser):
             self["GESTURES"] = {
                 0:[
                     ("True",
-                    "print",
-                    "(\"\\nYou forgot to add gestures. Please, download from my github page or make the by yourself. Don't forget to remove this gesture\")" ),
+                    "temperary_func",
+                    "()" ),
                 ],
-                
             }
 
-            self.save()
+            self["CUSTOM"] = {
+                "Test": 123
+            }
         
         else:
             self.read("settings.ini")
@@ -79,7 +80,7 @@ class Config(configparser.ConfigParser):
 
         self.MAX_HANDS = self.getint("DETECTION", "MaxHands")
         self.DETECTION_CONFIDENCE = self.getfloat("DETECTION", "DetectionConfidence")
-        self.TRACKING_CONFIDENCE = self.getfloat("DETECTION", "TrackongConfidence")
+        self.TRACKING_CONFIDENCE = self.getfloat("DETECTION", "TrackingConfidence")
 
         self.MPHAND  = self.mpHands.Hands(static_image_mode        = False, # It's video stream, you dumbass
                             max_num_hands            = self.MAX_HANDS,     
@@ -94,15 +95,17 @@ class Config(configparser.ConfigParser):
         self.MOUSE_MULT_WIDTH  = round(self.SCREEN_WIDTH / self.CAMERA_SIZE[0])
         self.MOUSE_MULT_HEIGHT = round(self.SCREEN_HEIGHT / self.CAMERA_SIZE[1])
 
-    def update_gestures(self):
+        self.CUSTOM = dict(self.items("CUSTOM"))
+
+    def update_gestures(self) -> None:
         self.GESTURES = {}
 
-        key = 0
+        key = 0 # priority
 
         while True:
             try:
-                # priority
-                self.GESTURES[key] = []
+                self.GESTURES[key] = [] # to escape "KeyError"
+
                 for value in eval(self.get("GESTURES", str(key))):
                     try:
                         self.GESTURES[key].append((value[0], eval(value[1]), [eval(value[2])]))
@@ -111,7 +114,7 @@ class Config(configparser.ConfigParser):
                         self.GESTURES[key].append((value[0], eval(value[1]), [eval(value[2])]))
 
             except configparser.NoOptionError:
-                _ = self.GESTURES.pop(key)
+                self.GESTURES.pop(key) # cuz idk how to remove empty key
                 break
             key += 1
 
@@ -120,3 +123,6 @@ settings = Config()
 from controller import *
 
 settings.update_gestures()
+
+if __name__ == "__main__":
+    pass
