@@ -1,5 +1,13 @@
 # Changelog
 
+## 2022.12.02.0
+
+### Changed
+- Options applying automatically (except for detection and gesture cuz it takes too much time to update)
+
+### Fixed
+- Opening json don't work
+
 ## 2022.12.01.0
 
 Really big update

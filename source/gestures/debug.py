@@ -1,6 +1,4 @@
-"""
-TODO: complete this
-"""
+# TODO: complete this
 
 from gestures.baseplate import SimpleGestureBase
 

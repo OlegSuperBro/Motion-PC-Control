@@ -59,10 +59,13 @@ def main():
 
     configure_logs()
     settings.update_gestures()
+    settings.update_camera_size()
+    settings.update_hands()
     UI.update_interface()
 
     while True:
         if old_cam_id != (new_camera_id := settings.get("CAMERA", "ID")):
+            settings.update_camera_size()
             camera = CameraCapture(new_camera_id)
             old_cam_id = new_camera_id
 
@@ -91,7 +94,7 @@ def main():
 
                 UI.update_image(img)
 
-            UI.update()
+        UI.update()
 
 
 if __name__ == "__main__":

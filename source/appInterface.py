@@ -153,7 +153,10 @@ class EntryWithText(tk.Frame):
         self.entry.insert(0, str(default))
 
     def get(self):
-        return self.var_type(self.entry.get())
+        if self.var_type in (int, float) and self.entry.get() == "":
+            return 0
+        else:
+            return self.var_type(self.entry.get())
 
     def validate(self, value):
         if value == "":
@@ -287,7 +290,7 @@ class SettingsWind(tk.Tk):
 
         self.b_brightness = ScaleWithText(self.camera_settings_tab,
                                           from_=0,
-                                          to=2,
+                                          to=5,
                                           length=400,
                                           digits=3,
                                           resolution=0.01,
@@ -297,8 +300,8 @@ class SettingsWind(tk.Tk):
         self.b_brightness.pack(anchor="nw", pady=10)
 
         self.b_resize_mult = ScaleWithText(self.camera_settings_tab,
-                                           from_=0.2,
-                                           to=4,
+                                           from_=0.1,
+                                           to=2,
                                            length=400,
                                            digits=2,
                                            resolution=0.1,
@@ -373,14 +376,18 @@ class SettingsWind(tk.Tk):
         self.b_tracking_confidence.scale.set(settings.get("DETECTION", "TrackingConfidence"))
         self.b_tracking_confidence.pack(anchor="nw")
 
+        ttk.Button(self.detection_settings_tab, text="Update hands", command=settings.update_hands).pack(side="right", anchor="se")
+
+        # Gestures selecting
         self.gestures_settings_tab = tk.Frame(self.settings_tabs)
 
-        self.changing_gestures_state = PickWidget(self.gestures_settings_tab,
+        self.b_changing_gestures_state = PickWidget(self.gestures_settings_tab,
                                                   left_text="Inactive",
                                                   right_text="Active",
                                                   left_vars=settings.get("GESTURES", "NotActive"),
                                                   right_vars=settings.get("GESTURES", "Active"),)
-        self.changing_gestures_state.pack(anchor="nw")
+        self.b_changing_gestures_state.pack(anchor="nw")
+        ttk.Button(self.gestures_settings_tab, text="Update Gestures", command=settings.update_gestures).pack(side="right", anchor="se")
 
         # add all tabs in settings_tabs
         self.settings_tabs.add(self.camera_settings_tab, text="Camera")
@@ -389,12 +396,10 @@ class SettingsWind(tk.Tk):
 
         self.settings_tabs.add(self.gestures_settings_tab, text="Gestures")
 
-        # apply and save buttons
-        self.b_apply = ttk.Button(self, text="Apply", command=self.apply_settings)
-        self.b_apply.pack(side="right", anchor="se", padx=3, pady=3)
+        # save button
+        ttk.Button(self, text="Save", command=settings.save).pack(side="right", anchor="se", padx=3, pady=3)
 
-        self.b_save = ttk.Button(self, text="Save", command=lambda: [self.apply_settings(), settings.save()])
-        self.b_save.pack(side="right", anchor="se", padx=3, pady=3)
+        self.apply_settings()
 
     def apply_settings(self) -> None:
         settings.set(self.b_camera_id.get(), "CAMERA", "ID")
@@ -410,10 +415,10 @@ class SettingsWind(tk.Tk):
         settings.set(self.b_detection_confidence.get(), "DETECTION", "DetectionConfidence")
         settings.set(self.b_tracking_confidence.get(), "DETECTION", "TrackingConfidence")
 
-        settings.update_gestures()
-
         if settings.get("DEBUG", "Debug"):
             self.parent_wind.update_interface()
+
+        self.after(1, self.apply_settings)
 
 
 class MainWind(tk.Tk):

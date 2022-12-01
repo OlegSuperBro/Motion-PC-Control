@@ -60,20 +60,23 @@ class Config():
         else:
             self.settings = json.load(open("settings.json"))
 
-        self.update_vars()
+        self.update_hands()
+        self.update_camera_size()
 
-    def update_vars(self) -> None:
+    def update_camera_size(self) -> None:
+        self.CAMERA_SIZE = (int(VideoCapture(self.get("CAMERA", "ID")).get(CAP_PROP_FRAME_WIDTH)),
+                            int(VideoCapture(self.get("CAMERA", "ID")).get(CAP_PROP_FRAME_HEIGHT)))
+
+    def update_hands(self) -> None:
         """Configure settings that can't be saved or useless for saving."""
         self.MPHAND = self.MPHANDS.Hands(static_image_mode=False,
                                          max_num_hands=self.get("DETECTION", "MaxHands"),
                                          min_detection_confidence=self.get("DETECTION", "DetectionConfidence"),
                                          min_tracking_confidence=self.get("DETECTION", "TrackingConfidence"))
 
-        self.CAMERA_SIZE = (int(VideoCapture(self.get("CAMERA", "ID")).get(CAP_PROP_FRAME_WIDTH)),
-                            int(VideoCapture(self.get("CAMERA", "ID")).get(CAP_PROP_FRAME_HEIGHT)))
-
     def update_gestures(self) -> None:
         # TODO: Import gestures if them presented as list
+        # TODO: import from 
 
         """Basically just re-importing all gestures and if them in
         \"active\" list add class to \"settings.ACTIVE_GESTURE_CLASSES\"."""
@@ -106,6 +109,10 @@ class Config():
     def save(self) -> None:
         """Saves all settings in \"settings.json\" file."""
         json.dump(self.settings, open("settings.json", "w"), indent=4)
+
+    def read(self, file) -> None:
+        if file:
+            self.settings = json.load(open(file))
 
     def get(self, *values: str) -> any:
         """Returns an saved setting, if required value don't exist,
