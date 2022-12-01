@@ -128,5 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# VSCode settings
+.vscode/
+
 # My ignores
 notes.txt
+settings.json
