@@ -7,7 +7,7 @@ from cv2 import VideoCapture, CAP_PROP_FRAME_HEIGHT, CAP_PROP_FRAME_WIDTH
 from os import listdir
 from pyautogui import size
 
-from importlib import import_module
+import importlib.util
 
 import gestures
 from gestures.init import get_gestures
@@ -60,12 +60,8 @@ class Config():
         else:
             self.settings = json.load(open("settings.json"))
 
-        self.update_hands()
-        self.update_camera_size()
-
-    def update_camera_size(self) -> None:
-        self.CAMERA_SIZE = (int(VideoCapture(self.get("CAMERA", "ID")).get(CAP_PROP_FRAME_WIDTH)),
-                            int(VideoCapture(self.get("CAMERA", "ID")).get(CAP_PROP_FRAME_HEIGHT)))
+    def update_camera_size(self, camera) -> None:
+        self.CAMERA_SIZE = camera.get_resolution()
 
     def update_hands(self) -> None:
         """Configure settings that can't be saved or useless for saving."""
@@ -76,20 +72,24 @@ class Config():
 
     def update_gestures(self) -> None:
         # TODO: Import gestures if them presented as list
-        # TODO: import from 
+        # that means if there more then 1 gesture then it should add all classes in list
+        # can be useful for separeted gestures like
+        # mouse_move and mouse_click
 
         """Basically just re-importing all gestures and if them in
         \"active\" list add class to \"settings.ACTIVE_GESTURE_CLASSES\"."""
 
         self.ACTIVE_GESTURES_CLASSES = []
-        for gesture_module in get_gestures():
-            import_module("gestures." + gesture_module)
+        for gesture_module_name in get_gestures():
+            gesture_module_spec = importlib.util.spec_from_file_location("gesture", gesture_module_name)
+            gesture_module = importlib.util.module_from_spec(gesture_module_spec)
+            gesture_module_spec.loader.exec_module(gesture_module)
             try:
-                gestures_dict = eval("gestures." + gesture_module + ".gestures")
+                gestures_dict = gesture_module.gestures
 
             except AttributeError:
-                print(gesture_module + " don't have \"gestures\" list.")
-                logging.warning(gesture_module + " don't have \"gestures\" list.")
+                print(gesture_module_name + " don't have \"gestures\" list.")
+                logging.warning(gesture_module_name + " don't have \"gestures\" list.")
 
             else:
                 for gesture in gestures_dict.items():
@@ -148,15 +148,3 @@ class Config():
 
 
 settings = Config()
-
-if __name__ == "__main__":
-    # print("gestures." + get_gestures()[0])
-
-    # import_module("gestures." + get_gestures()[0])
-
-    # print(dir(eval("gestures." + get_gestures()[0])))
-    # print(getmembers({ "gestures." + get_gestures()[0]], isclass))
-
-    print(settings.get("GESTURES", "Active"))
-    print(settings.ACTIVE_GESTURES_CLASSES)
-    print(settings.get("GESTURES", "NotActive"))

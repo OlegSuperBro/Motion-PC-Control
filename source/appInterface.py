@@ -1,3 +1,8 @@
+"""
+# TODO: crash on running this file as main
+# with error AttributeError: '_tkinter.tkapp' object has no attribute 'camera'
+"""
+
 import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.messagebox
@@ -268,11 +273,12 @@ class BetterCheckbox(ttk.Checkbutton):
             return False
 
 
-class SettingsWind(tk.Tk):
-    def __init__(self, parent_wind=None) -> None:
-        super().__init__()
+class SettingsWind(tk.Toplevel):
+    def __init__(self, master) -> None:
+        super().__init__(master)
 
-        self.parent_wind = parent_wind
+        self.master = master
+        self.grab_set()
 
         self.geometry("500x500")
 
@@ -416,9 +422,16 @@ class SettingsWind(tk.Tk):
         settings.set(self.b_tracking_confidence.get(), "DETECTION", "TrackingConfidence")
 
         if settings.get("DEBUG", "Debug"):
-            self.parent_wind.update_interface()
+            self.master.update_interface()
 
         self.after(1, self.apply_settings)
+
+    def update_custom_tabs(self):
+        # TODO: tabs for custom settings (another function in gesture?)
+        # maybe checking if settings interface exist?
+        # if yes, create a new tab and pass it to gesture function
+        # if no, ignore
+        pass
 
 
 class MainWind(tk.Tk):
@@ -471,44 +484,6 @@ class MainWind(tk.Tk):
         self.camera = Camera(self.camera_frame, no_cam_text="Camera disabled or don't work")
         self.camera.pack(side="left")
 
-    # def __init__(self) -> None:
-    #     super().__init__()
-
-    #     self.camera = Camera(self, no_cam_text="Camera disabled or don't work")
-    #     self.camera.pack()
-
-    #     self.logs = Logs(self, settings.get("LOGS", "LogLevel"), settings.get("LOGS", "Format"), settings.get("LOGS", "DateFormat"))
-    #     self.logs.pack(side="left", expand=True, fill="both")
-
-    #     self.menubar = tk.Menu(self, bg="lightgrey", fg="black")
-
-    #     self.file_menu = tk.Menu(self.menubar, tearoff=0, bg="lightgrey", fg="black")
-    #     self.file_menu.add_command(label="Open .ini file", command=self.load_file)
-    #     self.file_menu.add_command(label="Setting", command=self.open_settings)
-
-    #     self.menubar.add_cascade(label="File", menu=self.file_menu)
-
-    #     self.configure(menu=self.menubar)
-
-    # def update_image(self, img) -> None:
-    #     if settings.get("DISPLAY", "ShowCamera"):
-    #         self.camera.enable_camera()
-    #         self.camera.update_image(img)
-    #     else:
-    #         self.camera.disable_camera()
-
-    # def open_settings(self) -> None:
-    #     SettingsWind()
-
-    # def load_file(self) -> None:
-    #     settings.read(filedialog.askopenfile(
-    #         title="Open .ini file",
-    #         initialdir="/",
-    #         filetypes=(
-    #             ("ini files", "*.ini"),
-    #             ("all files", "*.*"))
-    #     ))
-
 
 class DebugWind(tk.Tk):
     def __init__(self) -> None:
@@ -525,7 +500,6 @@ class DebugWind(tk.Tk):
         self.file_menu = tk.Menu(self.menubar, tearoff=0, bg="lightgrey", fg="black")
         self.file_menu.add_command(label="Open .json file", command=self.load_file)
         self.file_menu.add_command(label="Global setting", command=self.open_settings)
-        self.file_menu.add_command(label="Debug settings", command=self.open_debug_settings)
 
         self.menubar.add_cascade(label="File", menu=self.file_menu)
 
@@ -540,10 +514,6 @@ class DebugWind(tk.Tk):
 
     def open_settings(self) -> None:
         SettingsWind(self)
-
-    def open_debug_settings(self) -> None:
-        # TODO: different settings that works only in debug (another SettingsWind class??)
-        tkinter.messagebox.showinfo("WIP", "This feature unavable right now, but in active development!")
 
     def load_file(self) -> None:
         settings.read(filedialog.askopenfile(
@@ -579,15 +549,6 @@ class DebugWind(tk.Tk):
 
 
 if __name__ == "__main__":
-
-    # root = tk.Tk()
-    # root.geometry("400x400")
-    # btn = PickWidget(root)
-    # btn.pack()
-
-    # while True:
-    #     root.update()
-
     camera = CameraCapture(1)
 
     img = camera.cap()

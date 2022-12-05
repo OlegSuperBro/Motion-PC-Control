@@ -33,34 +33,35 @@ class SimpleGestureBase:
             return None
 
     def dist_beetwen_dots_with(self, dots, dot1: int, dot2: int) -> float:
-        # TODO: return distance in standartised unit
+        # TODO: return distance in standartised(?) unit
         pass
 
-    def action(self, *args, **kwargs) -> None:
+    def action(self, result, *args, **kwargs) -> None:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"action\"")
 
-    def check(self, *args, **kwargs) -> bool:
+    def check(self, result, *args, **kwargs) -> bool:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"check\"")
 
-    def process_image(self, *args, **kwargs) -> ndarray:
+    def process_image(self, image, *args, **kwargs) -> ndarray:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"process_image\"")
+        return image
 
-    def interface_settings(self, *args, **kwargs) -> None:
+    def interface_settings(self, parent, *args, **kwargs) -> None:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"interface_settings\"")
 
-    def interface_debug_settings(self, *args, **kwargs) -> None:
+    def interface_debug_settings(self, parent, *args, **kwargs) -> None:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"interface_debug_settings\"")
 
-    def interface_debug(self, *args, **kwargs) -> None:
+    def interface_debug(self, parent, *args, **kwargs) -> None:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"interface_debug\"")
 
-    def debug(self,  *args, **kwargs) -> None:
+    def debug(self, *args, **kwargs) -> None:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"debug\"")
 
