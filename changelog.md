@@ -1,5 +1,23 @@
 # Changelog
 
+## 2022.12.05.0
+
+### Added
+- Recursive gesture importing (Now you can make folder in folder in folder :D)
+- New Image object (subclass of np.ndarray)
+
+### Changed
+- Gestures process_image now works (used to edit image in any way with cv2)
+- Gestures check, action and process_image now run without fps limit (if the limit is 10 fps, then this only affects capture)
+- Camera cap now return Image object (can be used same as np.ndarray but have some useful funcs)
+- Some actions in main.py moved in functions
+
+### Fixed
+- Opening more than 1 setting window
+
+### Removed
+- Process image thing (all func moved in main.py)
+
 ## 2022.12.02.0
 
 ### Changed
