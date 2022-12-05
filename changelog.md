@@ -7,7 +7,6 @@
 - New Image object (subclass of np.ndarray)
 
 ### Changed
-- Gestures process_image now works (used to edit image in any way with cv2)
 - Gestures check, action and process_image now run without fps limit (if the limit is 10 fps, then this only affects capture)
 - Camera cap now return Image object (can be used same as np.ndarray but have some useful funcs)
 - Some actions in main.py moved in functions
