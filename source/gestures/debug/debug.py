@@ -7,13 +7,16 @@ import tkinter.ttk as ttk
 
 from PIL import Image, ImageTk, ImageOps
 from typing import Literal
+from os.path import dirname, join
+
+dir = dirname(__file__)
 
 
 class HandRepresentation(tk.Frame):
     def __init__(self, parent, hand: Literal["right", "left"] = "right") -> None:
         super().__init__(parent)
 
-        self.img = Image.open("hand.png")
+        self.img = Image.open(join(dir, "hand.png"))
 
         if hand == "left":
             self.img = ImageOps.mirror(self.img)
@@ -141,6 +144,8 @@ class DebugGesture(SimpleGestureBase):
 
         parent.add(self.debug_outputs_tab, text="Debug outputs")
         parent.add(self.hands_tab, text="Hands dots")
+
+        return "Debug"
 
 
 gestures = {

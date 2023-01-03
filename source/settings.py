@@ -44,9 +44,6 @@ class Config():
                                 "DetectionConfidence": 0.7,
                                 "TrackingConfidence": 0.5,
                             },
-                            "GENERAL": {
-
-                            },
                             "LOGS": {
                                 "Format": "%(asctime)s:%(msecs)d - %(levelname)s - %(filename)s - %(message)s",
                                 "DateFormat": "%H:%M:%S",
@@ -133,18 +130,24 @@ class Config():
                 return
         return value
 
-    def set(self, value: any, *dir: str) -> None:
-        """Set an value in settings
+    def set(self, value: any, *dirs: str) -> bool:
+        """Set an value in settings and return True if changed
 
         Args:
             value (any): value to set
             *dir: directory to setting ("OPTION1", "OPTION2", ...)
 
+        Returns:
+            bool: True if changed, False otherwise
         """
         command = "self.settings"
+        changed = False
         for i in dir:
             command += f"[\"{i}\"]"
+        if eval(command) != value:
+            changed = True
         exec(command + " = value")
+        return changed
 
 
 settings = Config()

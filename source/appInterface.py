@@ -1,11 +1,5 @@
-"""
-# TODO: crash on running this file as main
-# with error AttributeError: '_tkinter.tkapp' object has no attribute 'camera'
-"""
-
 import tkinter as tk
 import tkinter.ttk as ttk
-import tkinter.messagebox
 from tkinter import filedialog
 
 import tkinter.scrolledtext as ScrolledText
@@ -13,7 +7,6 @@ import tkinter.scrolledtext as ScrolledText
 from PIL import Image, ImageTk
 import logging
 
-from camera import CameraCapture
 from settings import settings
 
 
@@ -393,7 +386,11 @@ class SettingsWind(tk.Toplevel):
                                                   left_vars=settings.get("GESTURES", "NotActive"),
                                                   right_vars=settings.get("GESTURES", "Active"),)
         self.b_changing_gestures_state.pack(anchor="nw")
-        ttk.Button(self.gestures_settings_tab, text="Update Gestures", command=settings.update_gestures).pack(side="right", anchor="se")
+        ttk.Button(self.gestures_settings_tab, text="Update Gestures",
+                   command=lambda: [self.apply_settings(True),
+                                    settings.update_gestures(),
+                                    self.master.update_interface()]
+                   ).pack(side="right", anchor="se")
 
         # add all tabs in settings_tabs
         self.settings_tabs.add(self.camera_settings_tab, text="Camera")
@@ -407,24 +404,31 @@ class SettingsWind(tk.Toplevel):
 
         self.apply_settings()
 
-    def apply_settings(self) -> None:
-        settings.set(self.b_camera_id.get(), "CAMERA", "ID")
+    def apply_settings(self, force_update: bool = False) -> None:
+        changed = settings.set(self.b_camera_id.get(), "CAMERA", "ID")
+
         settings.set(self.b_brightness.get(), "CAMERA", "Brightness")
         settings.set(self.b_max_fps.get(), "CAMERA", "MaxFPS")
         settings.set(self.b_resize_mult.get(), "CAMERA", "ResizeMultiplier")
 
-        settings.set(self.b_show_cam.get(), "DISPLAY", "ShowCamera")
-        settings.set(self.b_show_only_dots.get(), "DISPLAY", "ShowOnlyDots")
+        changed = settings.set(self.b_show_cam.get(), "DISPLAY", "ShowCamera") or changed
+        changed = settings.set(self.b_show_only_dots.get(), "DISPLAY", "ShowOnlyDots") or changed
+
         settings.set(self.b_show_fps.get(), "DISPLAY", "ShowFPS")
 
         settings.set(self.b_max_hands.get(), "DETECTION", "MaxHands")
         settings.set(self.b_detection_confidence.get(), "DETECTION", "DetectionConfidence")
         settings.set(self.b_tracking_confidence.get(), "DETECTION", "TrackingConfidence")
 
-        if settings.get("DEBUG", "Debug"):
+        if not (changed or force_update):
+            self.after(1, self.apply_settings)
+
+        elif force_update:
             self.master.update_interface()
 
-        self.after(1, self.apply_settings)
+        else:
+            self.master.update_interface()
+            self.after(1, self.apply_settings)
 
     def update_custom_tabs(self):
         # TODO: tabs for custom settings (another function in gesture?)
@@ -524,10 +528,18 @@ class DebugWind(tk.Tk):
                 ("all files", "*.*"))
         ))
 
-    def update_debug_menu(self) -> None:
+    def update_debug_interface(self) -> None:
         for gesture_class in settings.ACTIVE_GESTURES_CLASSES:
             try:
-                gesture_class.interface_debug(self.debug_menu)
+                tmp_notebook = ttk.Notebook(self.debug_menu)
+                result = gesture_class.interface_debug(tmp_notebook)
+                if result is False:
+                    continue
+                if result:
+                    self.debug_menu.add(tmp_notebook, text=result)
+                else:
+                    self.debug_menu.add(tmp_notebook, text=gesture_class.__name__)
+
             except Exception as e:
                 print(e)
 
@@ -545,17 +557,4 @@ class DebugWind(tk.Tk):
         self.debug_menu = ttk.Notebook(self.camera_frame)
         self.debug_menu.pack(side="left", anchor="nw")
 
-        self.update_debug_menu()
-
-
-if __name__ == "__main__":
-    camera = CameraCapture(1)
-
-    img = camera.cap()
-
-    root = DebugWind()
-
-    while True:
-        img = camera.cap()
-        root.update_image(img)
-        root.update()
+        self.update_debug_interface()

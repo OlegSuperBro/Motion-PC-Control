@@ -9,10 +9,10 @@ import appInterface
 from camera import CameraCapture
 
 
-def draw_landmarks(image: np.ndarray, result) -> None:
+def draw_landmarks(img: np.ndarray, result) -> None:
     if result.multi_hand_landmarks:
         for handLandmark in result.multi_hand_landmarks:
-            settings.MPDRAW.draw_landmarks(image,
+            settings.MPDRAW.draw_landmarks(img,
                                            handLandmark,
                                            settings.MPHANDS.HAND_CONNECTIONS)
 
@@ -30,12 +30,21 @@ def draw_line_between_dots(img: np.ndarray,
         cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 3)
 
 
-def process_image(image: np.ndarray) -> type:
-    return settings.MPHAND.process(image)
+def process_image(img: np.ndarray) -> np.ndarray:
+    tmp_img = img
+
+    tmp_img = cv2.cvtColor(tmp_img, cv2.COLOR_BGR2RGB)
+    tmp_img = cv2.flip(tmp_img, 1)
+    tmp_img = cv2.convertScaleAbs(tmp_img, alpha=settings.get("CAMERA", "Brightness"), beta=1)
+
+    resize_mult = settings.get("CAMERA", "ResizeMultiplier")
+    tmp_img = cv2.resize(tmp_img, (int(tmp_img.shape[1]*resize_mult), int(tmp_img.shape[0]*resize_mult)))
+
+    return tmp_img
 
 
 def configure_logs():
-    logging.basicConfig(filename='test.log',
+    logging.basicConfig(filename='logs.log',
                         level=settings.get("LOGS", "LogLevel"),
                         format=settings.get("LOGS", "Format"),
                         datefmt=settings.get("LOGS", "DateFormat"))
@@ -45,31 +54,32 @@ def configure_logs():
 
 def img_draw_fps(img, fps):
     if settings.get("DISPLAY", "ShowOnlyDots"):
-        return img.put_text(text=fps,
-                            org=(0, 20),
-                            fontFace=cv2.FONT_HERSHEY_PLAIN,
-                            fontScale=1.5,
-                            thickness=2,
-                            color=(0, 0, 255),
-                            )
+        return cv2.putText(img,
+                           text=str(fps),
+                           org=(0, 20),
+                           fontFace=cv2.FONT_HERSHEY_PLAIN,
+                           fontScale=1.5,
+                           thickness=2,
+                           color=(0, 0, 255),
+                           )
     else:
-        return img.put_text(text=fps,
-                            org=(0, 20),
-                            fontFace=cv2.FONT_HERSHEY_PLAIN,
-                            fontScale=1.5,
-                            thickness=2,
-                            color=(255, 255, 255))
+        return cv2.putText(img,
+                           text=str(fps),
+                           org=(0, 20),
+                           fontFace=cv2.FONT_HERSHEY_PLAIN,
+                           fontScale=1.5,
+                           thickness=2,
+                           color=(255, 255, 255))
 
 
 def img_draw_hand(img, img_result):
-    if img_result:
-        if settings.get("DISPLAY", "ShowOnlyDots"):
-            img.fill(255)
+    if settings.get("DISPLAY", "ShowOnlyDots"):
+        img.fill(255)
     draw_landmarks(img, img_result)
     return img
 
 
-def main():
+if __name__ == "__main__":
     if settings.get("DEBUG", "Debug"):
         UI = appInterface.DebugWind()
     else:
@@ -94,10 +104,10 @@ def main():
         if time_elapsed > 1./settings.get("CAMERA", "MaxFPS"):
 
             img = camera.cap()
-            img = img.change_color_channel(cv2.COLOR_BGR2RGB)
-            img = img.flip()
 
-            img_result = process_image(img)
+            img = process_image(img)
+
+            img_result = settings.MPHAND.process(img)
 
             if settings.get("DISPLAY", "ShowCamera"):
                 img = img_draw_hand(img, img_result)
@@ -119,7 +129,3 @@ def main():
         UI.update_image(tmp_img)
 
         UI.update()
-
-
-if __name__ == "__main__":
-    main()

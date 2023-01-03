@@ -52,14 +52,17 @@ class SimpleGestureBase:
     def interface_settings(self, parent, *args, **kwargs) -> None:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"interface_settings\"")
+        return False  # only if this not implemented
 
     def interface_debug_settings(self, parent, *args, **kwargs) -> None:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"interface_debug_settings\"")
+        return False  # only if this not implemented
 
     def interface_debug(self, parent, *args, **kwargs) -> None:
         logging.log(logging.getLevelName("NotImplemented"),
                     str(type(self).__name__) + " don't have \"interface_debug\"")
+        return False  # only if this not implemented
 
     def debug(self, *args, **kwargs) -> None:
         logging.log(logging.getLevelName("NotImplemented"),
