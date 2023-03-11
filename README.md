@@ -1,3 +1,6 @@
+# ARCHIVED DUE REWRITING CHECK. NEW VERSION [HERE](https://github.com/OlegSuperBro/Motion-PC-Control-v2)
+## This one works, but not recommended to use
+
 # Motion-PC-Control
 Controlling PC with camera and gestures 
 
