@@ -1,5 +1,5 @@
 # IT WILL BE UPDATED SOON
-## You can use this version, but i don't recommend it
+## You can use v1, but i don't recommend it
 
 # Motion-PC-Control
 Controlling PC with camera and gestures 
